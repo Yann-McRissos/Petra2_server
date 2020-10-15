@@ -73,7 +73,7 @@ union
 #define CAPTPLONGEUR u_capt.capt.PP
 #define BAC u_capt.capt.DE
 
-#define PORT 40000
+#define PORT 40005
 #define MAXSTRING 1
 #define nbConnexion 1
 
@@ -95,7 +95,7 @@ struct sigaction act;
 
 int main()
 {
-	int quitter = 0;
+	int quitter = 1, msg;
 	struct sockaddr_in adresseSocket;
 	struct in_addr adresseIP;
 	struct hostent *infosHost;
@@ -141,13 +141,13 @@ int main()
 
 		while (quitter)
 		{
-			if(recvMsg() == -1)
+			if((msg = recvMsg()) == -1)
 				printf("Erreur de reception: %d\n", errno);
-			//quitter = menuPetra(msg);
+			quitter = menuPetra(msg);
 		}
-		pthread_kill(tid, SIGUSR1);
 	}
 
+	pthread_kill(tid, SIGUSR1);
 	close(hSocketEcoute);
 	close(hSocketService);
 	return 0;
@@ -158,39 +158,43 @@ int menuPetra(int actuateur)
 	printf("Actuateurs: %d\n", actuateur);
 	fflush(stdin);
 	// pas nécessaire
-	read(fd_petra_out, &u_act.byte, 1);
+	//read(fd_petra_out, &u_act.byte, 1);
 	switch (actuateur)
 	{
 	case 0: // QUITTER
 		return 0;
 		break;
 	case 1: // Conv1
+		printf("Convoyeur1\n");
 		if (u_act.act.C1 == 0)
 			u_act.act.C1 = 1;
 		else
 			u_act.act.C1 = 0;
-		write(fd_petra_out, &u_act.byte, 1);
+		//write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 2: // Conv2
+		printf("Convoyeur2\n");
 		if (u_act.act.C2 == 0)
 			u_act.act.C2 = 1;
 		else
 			u_act.act.C2 = 0;
-		write(fd_petra_out, &u_act.byte, 1);
+		//write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 3: // Ventouse
+		printf("Ventouse\n");
 		if (u_act.act.PV == 0)
 			u_act.act.PV = 1;
 		else
 			u_act.act.PV = 0;
-		write(fd_petra_out, &u_act.byte, 1);
+		//write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 4: // Plongueur
+		printf("Plongeur\n");
 		if (u_act.act.PA == 0)
 			u_act.act.PA = 1;
 		else
 			u_act.act.PA = 0;
-		write(fd_petra_out, &u_act.byte, 1);
+		//write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 5: // Arbre
 		if (u_act.act.AA == 0)
@@ -241,21 +245,21 @@ int menuPetra(int actuateur)
 
 void *threadCapteurs(void *s)
 {
-	int *temp, socketClient;
+	/*int *temp, socketClient;
 	temp = (int *)s;
-	socketClient = *temp;
+	socketClient = *temp;*/
 
 	while (1)
 	{
 		//read(fd_petra_in, &u_capt.byte, 1);
 
-		sendMsg(BAC);
-		sendMsg(CHARIOTSTABLE);
-		sendMsg(PLONGEUR);
-		sendMsg(SLOT);
-		sendMsg(L1);
-		sendMsg(L2);
-		sendMsg(BRAS);
+		// sendMsg(BAC);
+		// sendMsg(CHARIOTSTABLE);
+		// sendMsg(PLONGEUR);
+		// sendMsg(SLOT);
+		// sendMsg(L1);
+		// sendMsg(L2);
+		// sendMsg(BRAS);
 	}
 }
 
