@@ -56,6 +56,13 @@ union
 	unsigned char byte;
 } u_capt;
 
+union
+{
+	struct CAPTEURS capt;
+	unsigned char byte;
+} u_capt_oldvalue;
+
+// Actuateurs
 #define CHARIOT u_act.act.CP
 #define CONVOYEUR1 u_act.act.C1
 #define CONVOYEUR2 u_act.act.C2
@@ -63,7 +70,7 @@ union
 #define PLONGEUR u_act.act.PA
 #define ARBRE u_act.act.AA
 #define GRAPIN u_act.act.GA
-
+// Capteurs
 #define L1 u_capt.capt.L1
 #define L2 u_capt.capt.L2
 #define EPAISSEUR u_capt.capt.T
@@ -73,7 +80,7 @@ union
 #define CAPTPLONGEUR u_capt.capt.PP
 #define BAC u_capt.capt.DE
 
-#define PORT 40005
+#define PORT 40004
 #define MAXSTRING 1
 #define nbConnexion 1
 
@@ -103,7 +110,7 @@ int main()
 	char *IP = malloc(17);
 
 	// Informations machine
-	if ((infosHost = gethostbyname("ubuntu")) == 0)
+	if ((infosHost = gethostbyname("192.168.1.29")) == 0)
 	{
 		printf("Erreur d'acquisition d'infos sur le host %d\n", errno);
 		exit(1);
@@ -138,6 +145,7 @@ int main()
 			printf("Erreur de creation de thread : %s\n", strerror(errno));
 			exit(1);
 		}
+		printf("Thread lance\n");
 
 		while (quitter)
 		{
@@ -145,6 +153,8 @@ int main()
 				printf("Erreur de reception: %d\n", errno);
 			quitter = menuPetra(msg);
 		}
+		close(hSocketService);
+		pthread_kill(tid, SIGUSR1);
 	}
 
 	pthread_kill(tid, SIGUSR1);
@@ -155,7 +165,6 @@ int main()
 
 int menuPetra(int actuateur)
 {
-	printf("Actuateurs: %d\n", actuateur);
 	fflush(stdin);
 	// pas nécessaire
 	//read(fd_petra_out, &u_act.byte, 1);
@@ -197,46 +206,52 @@ int menuPetra(int actuateur)
 		//write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 5: // Arbre
+		printf("Arbre\n");
 		if (u_act.act.AA == 0)
 			u_act.act.AA = 1;
 		else
 			u_act.act.AA = 0;
-		write(fd_petra_out, &u_act.byte, 1);
+		//write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 6: // Grappin
+		printf("Grappin\n");
 		if (u_act.act.GA == 0)
 			u_act.act.GA = 1;
 		else
 			u_act.act.GA = 0;
-		write(fd_petra_out, &u_act.byte, 1);
+		//write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 7: // Réservoir
+		printf("Chariot: Reservoir\n");
 		if ((u_act.act.CP & 0x11) == 0)
 			u_act.act.CP |= 0x00;
 		else
 			u_act.act.CP &= 0x11;
-		write(fd_petra_out, &u_act.byte, 1);
+		//write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 8: // Tapis 1
+		printf("Chariot: Tapis 1\n");
 		if ((u_act.act.CP & 0x10) == 0)
 			u_act.act.CP |= 0x01;
 		else
 			u_act.act.CP &= 0x10;
-		write(fd_petra_out, &u_act.byte, 1);
+		//write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 9: // Bac KO
+		printf("Chariot: Bac KO\n");
 		if ((u_act.act.CP & 0x01) == 0)
 			u_act.act.CP |= 0x10;
 		else
 			u_act.act.CP &= 0x01;
-		write(fd_petra_out, &u_act.byte, 1);
+		//write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 10: // Tapis 2
+		printf("Chariot: Tapis 2\n");
 		if ((u_act.act.CP & 0x00) == 0)
 			u_act.act.CP |= 0x11;
 		else
 			u_act.act.CP &= 0x00;
-		write(fd_petra_out, &u_act.byte, 1);
+		//write(fd_petra_out, &u_act.byte, 1);
 		break;
 	}
 
@@ -245,21 +260,56 @@ int menuPetra(int actuateur)
 
 void *threadCapteurs(void *s)
 {
+	printf("THREAD: Debut...\n");
 	/*int *temp, socketClient;
 	temp = (int *)s;
 	socketClient = *temp;*/
 
+	u_capt_oldvalue.byte = 0x00;
 	while (1)
 	{
+		sleep(4);
 		//read(fd_petra_in, &u_capt.byte, 1);
-
-		// sendMsg(BAC);
-		// sendMsg(CHARIOTSTABLE);
-		// sendMsg(PLONGEUR);
-		// sendMsg(SLOT);
-		// sendMsg(L1);
-		// sendMsg(L2);
-		// sendMsg(BRAS);
+		u_capt.byte = rand() % 8;
+		if(u_capt_oldvalue.byte != u_capt.byte)
+		{
+			switch (u_capt.byte)
+			{
+			case 0x00:
+				printf("L1\n");
+				sendMsg((char)0);
+				break;
+			case 0x01:
+				printf("L2\n");
+				sendMsg(1);
+				break;
+			case 0x02:
+				printf("EPAISSEUR\n");
+				sendMsg(2);
+				break;
+			case 0x03:
+				printf("SLOT\n");
+				sendMsg(3);
+				break;
+			case 0x04:
+				printf("CHARIOTSTABLE\n");
+				sendMsg(4);
+				break;
+			case 0x05:
+				printf("BRAS\n");
+				sendMsg(5);
+				break;
+			case 0x06:
+				printf("CAPTEURPLONGEUR\n");
+				sendMsg(6);
+				break;
+			case 0x07:
+				printf("BAC\n");
+				sendMsg(7);
+				break;
+			}
+			u_capt_oldvalue.byte = u_capt.byte;
+		}
 	}
 }
 
@@ -271,7 +321,7 @@ void sendMsg(char msg)
 	printf("on envoit : %s\n", t);
 	printf("int : %d\n", t[0]);
 
-	if (send(hSocketService, t, MAXSTRING, 0) == -1)
+	if (send(hSocketService, &msg, MAXSTRING, 0) == -1)
 	{
 		printf("erreur send : %s\n", strerror(errno));
 		exit(1);
@@ -280,7 +330,7 @@ void sendMsg(char msg)
 
 int recvMsg()
 {
-	int message;
+	char message;
 
 	if (recv(hSocketService, &message, MAXSTRING, 0) == -1)
 	{
