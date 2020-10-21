@@ -34,14 +34,13 @@ struct CAPTEURS
 	unsigned PP : 1;
 	unsigned DE : 1;
 	unsigned CS : 1; //anciennement CS
-					 /*       unsigned H1 : 1;
-		 unsigned H2 : 1;
-		 unsigned H3 : 1;
-		 unsigned H4 : 1;
-		 unsigned H5 : 1;
-		 unsigned H6 : 1;
-		 unsigned    : 2 ;	
-*/
+	unsigned H1 : 1;
+	/*unsigned H2 : 1;
+	unsigned H3 : 1;
+	unsigned H4 : 1;
+	unsigned H5 : 1;
+	unsigned H6 : 1;
+	unsigned    : 2;*/
 };
 
 union
@@ -110,7 +109,7 @@ int main()
 	char *IP = malloc(17);
 
 	// Informations machine
-	if ((infosHost = gethostbyname("192.168.1.29")) == 0)
+	if ((infosHost = gethostbyname("10.59.40.64")) == 0)
 	{
 		printf("Erreur d'acquisition d'infos sur le host %d\n", errno);
 		exit(1);
@@ -128,7 +127,7 @@ int main()
 	act.sa_flags = 0;
 	sigaction(SIGINT, &act, 0);
 	// Ouverture de la communication avec le PETRA
-	//ouverturePetra();
+	ouverturePetra();
 
 	while (1)
 	{
@@ -149,15 +148,18 @@ int main()
 
 		while (quitter)
 		{
-			if((msg = recvMsg()) == -1)
+			if ((msg = recvMsg()) == -1)
 				printf("Erreur de reception: %d\n", errno);
 			quitter = menuPetra(msg);
 		}
 		close(hSocketService);
-		pthread_kill(tid, SIGUSR1);
+		pthread_kill(tid, SIGINT);
 	}
 
-	pthread_kill(tid, SIGUSR1);
+	close(fd_petra_in);
+	close(fd_petra_out);
+	printf("Flux PETRA fermes");
+	//pthread_kill(tid, SIGUSR1);
 	close(hSocketEcoute);
 	close(hSocketService);
 	return 0;
@@ -166,8 +168,6 @@ int main()
 int menuPetra(int actuateur)
 {
 	fflush(stdin);
-	// pas nécessaire
-	//read(fd_petra_out, &u_act.byte, 1);
 	switch (actuateur)
 	{
 	case 0: // QUITTER
@@ -179,7 +179,7 @@ int menuPetra(int actuateur)
 			u_act.act.C1 = 1;
 		else
 			u_act.act.C1 = 0;
-		//write(fd_petra_out, &u_act.byte, 1);
+		write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 2: // Conv2
 		printf("Convoyeur2\n");
@@ -187,7 +187,7 @@ int menuPetra(int actuateur)
 			u_act.act.C2 = 1;
 		else
 			u_act.act.C2 = 0;
-		//write(fd_petra_out, &u_act.byte, 1);
+		write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 3: // Ventouse
 		printf("Ventouse\n");
@@ -195,7 +195,7 @@ int menuPetra(int actuateur)
 			u_act.act.PV = 1;
 		else
 			u_act.act.PV = 0;
-		//write(fd_petra_out, &u_act.byte, 1);
+		write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 4: // Plongueur
 		printf("Plongeur\n");
@@ -203,15 +203,15 @@ int menuPetra(int actuateur)
 			u_act.act.PA = 1;
 		else
 			u_act.act.PA = 0;
-		//write(fd_petra_out, &u_act.byte, 1);
+		write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 5: // Arbre
-		printf("Arbre\n");
+		printf("Bras/Arbre\n");
 		if (u_act.act.AA == 0)
 			u_act.act.AA = 1;
 		else
 			u_act.act.AA = 0;
-		//write(fd_petra_out, &u_act.byte, 1);
+		write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 6: // Grappin
 		printf("Grappin\n");
@@ -219,39 +219,27 @@ int menuPetra(int actuateur)
 			u_act.act.GA = 1;
 		else
 			u_act.act.GA = 0;
-		//write(fd_petra_out, &u_act.byte, 1);
+		write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 7: // Réservoir
 		printf("Chariot: Reservoir\n");
-		if ((u_act.act.CP & 0x11) == 0)
-			u_act.act.CP |= 0x00;
-		else
-			u_act.act.CP &= 0x11;
-		//write(fd_petra_out, &u_act.byte, 1);
+		u_act.act.CP &= 0x00;
+		write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 8: // Tapis 1
 		printf("Chariot: Tapis 1\n");
-		if ((u_act.act.CP & 0x10) == 0)
-			u_act.act.CP |= 0x01;
-		else
-			u_act.act.CP &= 0x10;
-		//write(fd_petra_out, &u_act.byte, 1);
+		u_act.act.CP = 1;
+		write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 9: // Bac KO
 		printf("Chariot: Bac KO\n");
-		if ((u_act.act.CP & 0x01) == 0)
-			u_act.act.CP |= 0x10;
-		else
-			u_act.act.CP &= 0x01;
-		//write(fd_petra_out, &u_act.byte, 1);
+		u_act.act.CP = 2;
+		write(fd_petra_out, &u_act.byte, 1);
 		break;
 	case 10: // Tapis 2
 		printf("Chariot: Tapis 2\n");
-		if ((u_act.act.CP & 0x00) == 0)
-			u_act.act.CP |= 0x11;
-		else
-			u_act.act.CP &= 0x00;
-		//write(fd_petra_out, &u_act.byte, 1);
+		u_act.act.CP = 3;
+		write(fd_petra_out, &u_act.byte, 1);
 		break;
 	}
 
@@ -261,51 +249,57 @@ int menuPetra(int actuateur)
 void *threadCapteurs(void *s)
 {
 	printf("THREAD: Debut...\n");
-	/*int *temp, socketClient;
-	temp = (int *)s;
-	socketClient = *temp;*/
 
 	u_capt_oldvalue.byte = 0x00;
 	while (1)
 	{
-		sleep(4);
-		//read(fd_petra_in, &u_capt.byte, 1);
-		u_capt.byte = rand() % 8;
-		if(u_capt_oldvalue.byte != u_capt.byte)
+		read(fd_petra_in, &u_capt.byte, 1);
+		if (u_capt_oldvalue.byte != u_capt.byte)
 		{
 			switch (u_capt.byte)
 			{
 			case 0x00:
-				printf("L1\n");
+				printf("Reset capteurs - Plongeur: position haute - Chariot: stable\n");
 				sendMsg((char)0);
 				break;
 			case 0x01:
-				printf("L2\n");
+				printf("L1\n");
 				sendMsg(1);
 				break;
 			case 0x02:
-				printf("EPAISSEUR\n");
+				printf("L2\n");
 				sendMsg(2);
 				break;
 			case 0x03:
-				printf("SLOT\n");
+				printf("L1 & L2\n");
 				sendMsg(3);
 				break;
 			case 0x04:
-				printf("CHARIOTSTABLE\n");
+				printf("H\n");
 				sendMsg(4);
 				break;
-			case 0x05:
-				printf("BRAS\n");
-				sendMsg(5);
+			case 0x08:
+				printf("S - Slot\n");
+				sendMsg(8);
 				break;
-			case 0x06:
-				printf("CAPTEURPLONGEUR\n");
-				sendMsg(6);
+			case 16:
+				printf("Plongeur: position basse\n");
+				sendMsg(16);
 				break;
-			case 0x07:
-				printf("BAC\n");
-				sendMsg(7);
+			case 32:
+				printf("Bras/Arbre: convoyeur 2\n");
+				sendMsg(32);
+				break;
+			case 64:
+				printf("Plongeur - Position basse\n");
+				sendMsg(64);
+				break;
+			case 128:
+				printf("Bac d'entrée vide\n");
+				sendMsg(126);
+				break;
+			default:
+				printf("Etat du byte capteur: %d\n", u_capt.byte);
 				break;
 			}
 			u_capt_oldvalue.byte = u_capt.byte;
@@ -319,7 +313,6 @@ void sendMsg(char msg)
 
 	sprintf(t, "%d", msg);
 	printf("on envoit : %s\n", t);
-	printf("int : %d\n", t[0]);
 
 	if (send(hSocketService, &msg, MAXSTRING, 0) == -1)
 	{
@@ -441,6 +434,9 @@ int acceptSocket(int hSocket, struct sockaddr *adresseSocket)
 void handlerSIGINT(int sig)
 {
 	printf("\nHANDLER: reçu %d\n", sig);
+	close(fd_petra_in);
+	close(fd_petra_out);
+	printf("Flux PETRA fermes\n");
 	close(hSocketEcoute);
 	close(hSocketService);
 	printf("Sockets fermees\n");
