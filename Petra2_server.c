@@ -109,7 +109,7 @@ int main()
 	char *IP = malloc(17);
 
 	// Informations machine
-	if ((infosHost = gethostbyname("10.59.40.64")) == 0)
+	if ((infosHost = gethostbyname("192.168.1.75")) == 0)
 	{
 		printf("Erreur d'acquisition d'infos sur le host %d\n", errno);
 		exit(1);
@@ -127,7 +127,7 @@ int main()
 	act.sa_flags = 0;
 	sigaction(SIGINT, &act, 0);
 	// Ouverture de la communication avec le PETRA
-	ouverturePetra();
+	//ouverturePetra();
 
 	while (1)
 	{
@@ -156,8 +156,8 @@ int main()
 		pthread_kill(tid, SIGINT);
 	}
 
-	close(fd_petra_in);
-	close(fd_petra_out);
+	//close(fd_petra_in);
+	//close(fd_petra_out);
 	printf("Flux PETRA fermes");
 	//pthread_kill(tid, SIGUSR1);
 	close(hSocketEcoute);
@@ -175,71 +175,71 @@ int menuPetra(int actuateur)
 		break;
 	case 1: // Conv1
 		printf("Convoyeur1\n");
-		if (u_act.act.C1 == 0)
+		/*if (u_act.act.C1 == 0)
 			u_act.act.C1 = 1;
 		else
 			u_act.act.C1 = 0;
-		write(fd_petra_out, &u_act.byte, 1);
+		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
 	case 2: // Conv2
 		printf("Convoyeur2\n");
-		if (u_act.act.C2 == 0)
+		/*if (u_act.act.C2 == 0)
 			u_act.act.C2 = 1;
 		else
 			u_act.act.C2 = 0;
-		write(fd_petra_out, &u_act.byte, 1);
+		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
 	case 3: // Ventouse
 		printf("Ventouse\n");
-		if (u_act.act.PV == 0)
+		/*if (u_act.act.PV == 0)
 			u_act.act.PV = 1;
 		else
 			u_act.act.PV = 0;
-		write(fd_petra_out, &u_act.byte, 1);
+		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
 	case 4: // Plongueur
 		printf("Plongeur\n");
-		if (u_act.act.PA == 0)
+		/*if (u_act.act.PA == 0)
 			u_act.act.PA = 1;
 		else
 			u_act.act.PA = 0;
-		write(fd_petra_out, &u_act.byte, 1);
+		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
 	case 5: // Arbre
 		printf("Bras/Arbre\n");
-		if (u_act.act.AA == 0)
+		/*if (u_act.act.AA == 0)
 			u_act.act.AA = 1;
 		else
 			u_act.act.AA = 0;
-		write(fd_petra_out, &u_act.byte, 1);
+		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
 	case 6: // Grappin
 		printf("Grappin\n");
-		if (u_act.act.GA == 0)
+		/*if (u_act.act.GA == 0)
 			u_act.act.GA = 1;
 		else
 			u_act.act.GA = 0;
-		write(fd_petra_out, &u_act.byte, 1);
+		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
 	case 7: // Réservoir
 		printf("Chariot: Reservoir\n");
-		u_act.act.CP &= 0x00;
-		write(fd_petra_out, &u_act.byte, 1);
+		/*u_act.act.CP &= 0x00;
+		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
 	case 8: // Tapis 1
 		printf("Chariot: Tapis 1\n");
-		u_act.act.CP = 1;
-		write(fd_petra_out, &u_act.byte, 1);
+		/*u_act.act.CP = 1;
+		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
 	case 9: // Bac KO
 		printf("Chariot: Bac KO\n");
-		u_act.act.CP = 2;
-		write(fd_petra_out, &u_act.byte, 1);
+		/*u_act.act.CP = 2;
+		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
 	case 10: // Tapis 2
 		printf("Chariot: Tapis 2\n");
-		u_act.act.CP = 3;
-		write(fd_petra_out, &u_act.byte, 1);
+		/*u_act.act.CP = 3;
+		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
 	}
 
@@ -253,7 +253,7 @@ void *threadCapteurs(void *s)
 	u_capt_oldvalue.byte = 0x00;
 	while (1)
 	{
-		read(fd_petra_in, &u_capt.byte, 1);
+		//read(fd_petra_in, &u_capt.byte, 1);*/
 		if (u_capt_oldvalue.byte != u_capt.byte)
 		{
 			switch (u_capt.byte)
