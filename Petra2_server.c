@@ -109,7 +109,7 @@ int main()
 	char *IP = malloc(17);
 
 	// Informations machine
-	if ((infosHost = gethostbyname("192.168.1.75")) == 0)
+	if ((infosHost = gethostbyname("192.168.1.29")) == 0)
 	{
 		printf("Erreur d'acquisition d'infos sur le host %d\n", errno);
 		exit(1);
@@ -174,69 +174,117 @@ int menuPetra(int actuateur)
 		return 0;
 		break;
 	case 1: // Conv1
-		printf("Convoyeur1\n");
+		printf("Convoyeur1 ON\n");
 		/*if (u_act.act.C1 == 0)
+		{
 			u_act.act.C1 = 1;
-		else
+			write(fd_petra_out, &u_act.byte, 1);
+		}*/
+		break;
+	case 10: // Conv1 OFF
+		printf("Convoyeur1 OFF\n");
+		/*if (u_act.act.C1 == 1)
+		{
 			u_act.act.C1 = 0;
-		write(fd_petra_out, &u_act.byte, 1);*/
+			write(fd_petra_out, &u_act.byte, 1);
+		}*/
 		break;
 	case 2: // Conv2
-		printf("Convoyeur2\n");
+		printf("Convoyeur2 ON\n");
 		/*if (u_act.act.C2 == 0)
+		{
 			u_act.act.C2 = 1;
-		else
+			write(fd_petra_out, &u_act.byte, 1);
+		}*/
+		break;
+	case 20: // Conv2 OFF
+		printf("Convoyeur2 OFF\n");
+		/*if (u_act.act.C2 == 1)
+		{
 			u_act.act.C2 = 0;
-		write(fd_petra_out, &u_act.byte, 1);*/
+			write(fd_petra_out, &u_act.byte, 1);
+		}*/
 		break;
 	case 3: // Ventouse
-		printf("Ventouse\n");
+		printf("Ventouse ON\n");
 		/*if (u_act.act.PV == 0)
+		{
 			u_act.act.PV = 1;
-		else
+			write(fd_petra_out, &u_act.byte, 1);
+		}*/
+		break;
+	case 30: // Ventouse OFF
+		printf("Ventouse OFF\n");
+		/*if (u_act.act.PV == 1)
+		{
 			u_act.act.PV = 0;
-		write(fd_petra_out, &u_act.byte, 1);*/
+			write(fd_petra_out, &u_act.byte, 1);
+		}*/
 		break;
 	case 4: // Plongueur
-		printf("Plongeur\n");
+		printf("Plongeur ON\n");
 		/*if (u_act.act.PA == 0)
+		{
 			u_act.act.PA = 1;
-		else
+			write(fd_petra_out, &u_act.byte, 1);
+		}*/
+		break;
+	case 40: // Plongueur OFF
+		printf("Plongeur OFF\n");
+		/*if (u_act.act.PA == 1)
+		{
 			u_act.act.PA = 0;
-		write(fd_petra_out, &u_act.byte, 1);*/
+			write(fd_petra_out, &u_act.byte, 1);
+		}*/
 		break;
 	case 5: // Arbre
-		printf("Bras/Arbre\n");
+		printf("Bras/Arbre ON\n");
 		/*if (u_act.act.AA == 0)
+		{
 			u_act.act.AA = 1;
-		else
+			write(fd_petra_out, &u_act.byte, 1);
+		}*/
+		break;
+	case 50: // Arbre OFF
+		printf("Bras/Arbre OFF\n");
+		/*if (u_act.act.AA == 1)
+		{
 			u_act.act.AA = 0;
-		write(fd_petra_out, &u_act.byte, 1);*/
+			write(fd_petra_out, &u_act.byte, 1);
+		}*/
 		break;
 	case 6: // Grappin
-		printf("Grappin\n");
+		printf("Grappin ON\n");
 		/*if (u_act.act.GA == 0)
+		{
 			u_act.act.GA = 1;
-		else
-			u_act.act.GA = 0;
-		write(fd_petra_out, &u_act.byte, 1);*/
+			write(fd_petra_out, &u_act.byte, 1);
+		}*/
 		break;
-	case 7: // Réservoir
+	case 60: // Grappin
+		printf("Grappin OFF\n");
+		/*if (u_act.act.GA == 1)
+		{
+			u_act.act.GA = 0;
+			write(fd_petra_out, &u_act.byte, 1);
+		}*/
+		break;
+	case 11: // Réservoir
 		printf("Chariot: Reservoir\n");
 		/*u_act.act.CP &= 0x00;
 		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
-	case 8: // Tapis 1
+	case 12: // Tapis 1
 		printf("Chariot: Tapis 1\n");
 		/*u_act.act.CP = 1;
 		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
-	case 9: // Bac KO
+	case 13: // Bac KO
 		printf("Chariot: Bac KO\n");
 		/*u_act.act.CP = 2;
 		write(fd_petra_out, &u_act.byte, 1);*/
 		break;
-	case 10: // Tapis 2
+	case 14: // Tapis 2
 		printf("Chariot: Tapis 2\n");
 		/*u_act.act.CP = 3;
 		write(fd_petra_out, &u_act.byte, 1);*/
